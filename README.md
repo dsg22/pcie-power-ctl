@@ -91,3 +91,59 @@ and it can't be compressed.
 You might also consider setting the `pcie_aspm=force` kernel command line to
 ensure the kernel uses ASPM.
 
+Example output
+--------------
+
+Ignore the unknown power states and everything being in D0, I copied this after
+messing about a bit too much and things were getting wonky.
+
+```
+user@test:~/pcie-power-ctl$ sudo ./pcie-power-ctl.py 
++--------------+----------------------------+----------------------------------------------------+-------------+-----------------+-----------------+
+|  Device ID   |           Vendor           |                      Product                       | Power state |  ASPM supported |   ASPM status   |
++--------------+----------------------------+----------------------------------------------------+-------------+-----------------+-----------------+
+|   0000:00    |            None            |                        None                        |     None    |       None      |       None      |
+| 0000:00:1c.0 |     Intel Corporation      |           Tiger Lake-H PCIe Root Port #1           |    D3hot    | ASPM_L1_AND_L0s | ASPM_L1_AND_L0s |
+|              |                            |                                                    |             |                 |                 |
+| 0000:00:0d.0 |     Intel Corporation      |     Tiger Lake-H Thunderbolt 4 USB Controller      |      D0     |       None      |       None      |
+|              |                            |                                                    |             |                 |                 |
+| 0000:00:1f.0 |     Intel Corporation      |             WM590 LPC/eSPI Controller              |   unknown   |       None      |       None      |
+|              |                            |                                                    |             |                 |                 |
+| 0000:00:01.0 |     Intel Corporation      |     11th Gen Core Processor PCIe Controller #1     |      D0     |  ASPM_DISABLED  | ASPM_L1_AND_L0s |
+|              |                            |                                                    |             |                 |                 |
+| 0000:01:00.0 |     NVIDIA Corporation     |            GA107GLM [RTX A2000 Mobile]             |      D0     | ASPM_L1_AND_L0s | ASPM_L1_AND_L0s |
+|              |                            |                                                    |             |                 |                 |
+| 0000:01:00.1 |     NVIDIA Corporation     |                        2291                        |      D0     | ASPM_L1_AND_L0s | ASPM_L1_AND_L0s |
+|              |                            |                                                    |             |                 |                 |
+| 0000:00:04.0 |     Intel Corporation      | TigerLake-LP Dynamic Tuning Processor Participant  |      D0     |       None      |       None      |
+|              |                            |                                                    |             |                 |                 |
+| 0000:00:16.0 |     Intel Corporation      |      Tiger Lake-H Management Engine Interface      |      D0     |       None      |       None      |
+|              |                            |                                                    |             |                 |                 |
+| 0000:00:1b.0 |     Intel Corporation      |          Tiger Lake-H PCIe Root Port #17           |      D0     |   ASPM_L1_ONLY  | ASPM_L1_AND_L0s |
+|              |                            |                                                    |             |                 |                 |
+| 0000:06:00.0 | Samsung Electronics Co Ltd |       NVMe SSD Controller SM961/PM961/SM963        |      D0     |   ASPM_L1_ONLY  | ASPM_L1_AND_L0s |
+|              |                            |                                                    |             |                 |                 |
+| 0000:00:1f.5 |     Intel Corporation      |            Tiger Lake-H SPI Controller             |      D0     |       None      |       None      |
+|              |                            |                                                    |             |                 |                 |
+| 0000:00:1f.3 |     Intel Corporation      |          Tiger Lake-H HD Audio Controller          |    D3hot    |       None      |       None      |
+|              |                            |                                                    |             |                 |                 |
+| 0000:00:00.0 |     Intel Corporation      | 11th Gen Core Processor Host Bridge/DRAM Registers |   unknown   |       None      |       None      |
+|              |                            |                                                    |             |                 |                 |
+| 0000:00:06.0 |     Intel Corporation      |     11th Gen Core Processor PCIe Controller #0     |      D0     |   ASPM_L1_ONLY  |   ASPM_L1_ONLY  |
+|              |                            |                                                    |             |                 |                 |
+| 0000:04:00.0 | Samsung Electronics Co Ltd |       NVMe SSD Controller PM9A1/PM9A3/980PRO       |      D0     |   ASPM_L1_ONLY  |   ASPM_L1_ONLY  |
+|              |                            |                                                    |             |                 |                 |
+| 0000:00:1c.6 |     Intel Corporation      |                        43be                        |      D0     | ASPM_L1_AND_L0s | ASPM_L1_AND_L0s |
+|              |                            |                                                    |             |                 |                 |
+| 0000:09:00.0 |     Intel Corporation      |          Wi-Fi 6 AX210/AX211/AX411 160MHz          |      D0     |   ASPM_L1_ONLY  | ASPM_L1_AND_L0s |
+|              |                            |                                                    |             |                 |                 |
+| 0000:00:14.2 |     Intel Corporation      |              Tiger Lake-H Shared SRAM              |   unknown   |       None      |       None      |
+|              |                            |                                                    |             |                 |                 |
+| 0000:00:02.0 |     Intel Corporation      |          Tiger Lake-H GT1 [UHD Graphics]           |      D0     |  ASPM_DISABLED  |  ASPM_DISABLED  |
+|              |                            |                                                    |             |                 |                 |
+| 0000:00:14.0 |     Intel Corporation      | Tiger Lake-H USB 3.2 Gen 2x1 xHCI Host Controller  |      D0     |       None      |       None      |
+|              |                            |                                                    |             |                 |                 |
+| 0000:00:1f.4 |     Intel Corporation      |           Tiger Lake-H SMBus Controller            |      D0     |       None      |       None      |
+|              |                            |                                                    |             |                 |                 |
++--------------+----------------------------+----------------------------------------------------+-------------+-----------------+-----------------+
+```
