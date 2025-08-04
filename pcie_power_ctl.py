@@ -47,7 +47,7 @@ DEVICE_ATTRIBUTES = [
   ('link/l1_aspm', 'link_l1_aspm'),
 ]
 
-class aspm_states(Enum):
+class aspm_state(Enum):
   ASPM_DISABLED =   0b00
   ASPM_L0s_ONLY =   0b01
   ASPM_L1_ONLY =    0b10
@@ -150,6 +150,28 @@ class PciDevice:
       ))
       f.write(data)
 
+  # FIXME: Map devices sharing a link, not just every child device. And only
+  # walk the bus for bus parents.
+  #def get_optimal_bus_aspm_state(self):
+  #  """
+  #  Find the highest commonly-supported ASPM state for all devices sharing this bus.
+  #  """
+  #
+  #  lowest_supported_state = aspm_state(aspm_state.ASPM_L1_ONLY)
+  #  for d in self.walk_bus():
+  #    print("get_optimal_bus_state: device {} supports states {}".format(d.bdf, d.aspm_capabilities))
+  #
+  #    if d.aspm_capabilities is None:
+  #      lowest_supported_state = aspm_state(aspm_state.ASPM_DISABLED)
+  #    elif d.aspm_capabilities.name == 'ASPM_DISABLED':
+  #      lowest_supported_state = aspm_state(aspm_state.ASPM_DISABLED)
+  #    elif d.aspm_capabilities.name == 'ASPM_L0s_ONLY'
+  #      lowest_supported_state = aspm_state(aspm_state.ASPM_L0s_ONLY)
+  #    elif d.aspm_capabilities.name == 'ASPM_L1_AND_L0s'
+  #      lowest_supported_state = aspm_state(aspm_state.ASPM_L1_AND_L0s)
+  #    else:
+  #      continue
+  #  return lowest_supported_state
 
   def get_link_aspm_config_offsets(self):
     """
@@ -208,7 +230,7 @@ class PciDevice:
 
   def get_aspm_capabilities(self):
     """
-    Returns an aspm_states Enum with the reported ASPM capabilities.
+    Returns an aspm_state Enum with the reported ASPM capabilities.
     """
     try:
       (link_cap_offset, link_ctrl_offset) = self.get_link_aspm_config_offsets()
@@ -218,7 +240,7 @@ class PciDevice:
     link_cap = struct.unpack_from("<I", self.config_space, link_cap_offset)[0]
 
     # ASPM Support (bits 11:10 of Link Capabilities)
-    return(aspm_states((link_cap >> 10) & 0x3))
+    return(aspm_state((link_cap >> 10) & 0x3))
 
   def get_aspm_link_status(self):
     try:
@@ -230,7 +252,7 @@ class PciDevice:
     link_ctrl = struct.unpack_from("<H", self.config_space, link_ctrl_offset)[0]
 
     # ASPM Enabled (bits 1:0 of Link Control)
-    return(aspm_states(link_ctrl & 0x3))
+    return(aspm_state(link_ctrl & 0x3))
 
   def set_aspm_link_status(self, new_link_status):
     """
@@ -271,7 +293,7 @@ def main():
   parser = argparse.ArgumentParser(description="Manages PCIe power states.")
 
   parser.add_argument('-b', '--best', action='store_true', help='Change ASPM params for all devices to best supported')
-  parser.add_argument('-s', '--set' , help='Try to apply the specified ASPM state to a device.', type=lambda state: aspm_states[state], choices=list(aspm_states))
+  parser.add_argument('-s', '--set' , help='Try to apply the specified ASPM state to a device.', type=lambda state: aspm_state[state], choices=list(aspm_state))
   parser.add_argument('-d', '--device' , help='Device to operate on, for actions that require them. Use a full address including domain, such as those printed by this program or `lspci -D`.')
   args = parser.parse_args()
 
@@ -297,7 +319,8 @@ def main():
       dev.set_aspm_link_status(args.set)
 
     if args.best and dev.aspm_capabilities != dev.aspm_link_status:
-      dev.set_aspm_link_status(dev.aspm_capabilities)
+      if not (dev.aspm_capabilities.name == 'ASPM_L1_AND_L0s' and dev.aspm_link_status.name == 'ASPM_L1_ONLY'):
+        dev.set_aspm_link_status(dev.aspm_capabilities)
 
     color = COLOR_RESET
     if old_status[dev.bdf] != dev.aspm_link_status:
@@ -335,7 +358,6 @@ def main():
     table.add_row(row)
   print(table)
 
-
 if __name__ == '__main__':
-  main()
+ main()
 
