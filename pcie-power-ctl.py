@@ -2,6 +2,7 @@
 
 import os
 import os.path
+import getpass
 import pprint
 import re
 import collections
@@ -273,6 +274,10 @@ def main():
   parser.add_argument('-s', '--set' , help='Try to apply the specified ASPM state to a device.', type=lambda state: aspm_states[state], choices=list(aspm_states))
   parser.add_argument('-d', '--device' , help='Device to operate on, for actions that require them. Use a full address including domain, such as those printed by this program or `lspci -D`.')
   args = parser.parse_args()
+
+  if getpass.getuser() != 'root':
+    print("This script must be run as root.")
+    sys.exit(1)
 
   if args.set and not args.device:
     print("Device must be specified for --set")
