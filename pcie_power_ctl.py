@@ -63,7 +63,6 @@ class PciDevice:
     # stuff on the PCI bus.
     self.bdf = self.__name = bdf
     self.sysfs_path = sysfs_path
-    self.update_config_space()
     self.vendorid = self.sysfs_get('vendor')
     self.deviceid = self.sysfs_get('device')
     self.extra_attributes = {}
@@ -88,13 +87,14 @@ class PciDevice:
       mode = 'r'
     try:
       with open(path, mode) as f:
-        return(f.read())
+        content = f.read()
+        return(content)
     except OSError:
       return(None)
 
   def update_device_info(self):
-    for (filename, attrname) in DEVICE_ATTRIBUTES:
-      self.extra_attributes[attrname] = self.sysfs_get(filename)
+    #for (filename, attrname) in DEVICE_ATTRIBUTES:
+    #  self.extra_attributes[attrname] = self.sysfs_get(filename)
 
     if self.vendorid:
       self.vendorid = self.vendorid.lstrip('0x').strip()
@@ -221,6 +221,7 @@ class PciDevice:
     Reads information from PCI config space registers to determine supported
     and current ASPM modes. Updates our cached copy.
     """
+    self.update_config_space()
     if self.config_space is None:
       self.aspm_capabilities = None
       self.aspm_link_status = None
@@ -277,11 +278,7 @@ class PciDevice:
 
     self.write_config(link_ctrl_offset, new_link_ctrl_packed)
 
-    # Wait a little time for the device to respond.
-    time.sleep(5)
-
     # Update our view of the device to see if it accepted the new status.
-    self.update_config_space()
     self.update_aspm_status()
 
     if self.aspm_link_status.value == new_link_status.value:
